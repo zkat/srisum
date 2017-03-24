@@ -1,0 +1,63 @@
+{
+  "name": "srisum",
+  "version": "0.0.0",
+  "description": "CLI tool to compute and check Subresource Integrity digests.",
+  "main": "index.js",
+  "bin": {
+    "srisum": "index.js"
+  },
+  "files": [
+    "*.js",
+    "srisum.man.1"
+  ],
+  "man": "./srisum.man.1",
+  "scripts": {
+    "prepare": "marked-man README.md --manual 'User Commands' --version \"srisum@$npm_package_version\" > srisum.man.1",
+    "prerelease": "npm t",
+    "postrelease": "npm publish && git push --follow-tags",
+    "pretest": "standard",
+    "release": "standard-version -s",
+    "test": "tap -J --coverage test/*.js",
+    "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
+    "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'"
+  },
+  "repository": "https://github.com/zkat/srisum",
+  "keywords": [
+    "w3c",
+    "web",
+    "security",
+    "integrity",
+    "checksum",
+    "hashing",
+    "subresource integrity",
+    "html",
+    "cli"
+  ],
+  "author": {
+    "name": "Kat Marchán",
+    "email": "kzm@sykosomatic.org",
+    "twitter": "maybekatz"
+  },
+  "license": "CC0-1.0",
+  "dependencies": {
+    "ssri": "^2.0.0",
+    "yargs": "^7.0.2"
+  },
+  "devDependencies": {
+    "marked-man": "^0.2.0",
+    "nyc": "^10.0.0",
+    "standard": "^9.0.1",
+    "standard-version": "^4.0.0",
+    "tap": "^10.3.0",
+    "weallbehave": "^1.0.0",
+    "weallcontribute": "^1.0.8"
+  },
+  "config": {
+    "nyc": {
+      "exclude": [
+        "node_modules/**",
+        "test/**"
+      ]
+    }
+  }
+}
