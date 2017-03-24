@@ -40,6 +40,7 @@
   },
   "license": "CC0-1.0",
   "dependencies": {
+    "split": "^1.0.0",
     "ssri": "^2.0.0",
     "yargs": "^7.0.2"
   },
