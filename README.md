@@ -11,7 +11,7 @@
 
 ## DESCRIPTION
 
-Print or check [Subresource Integrity digests](https://w3c.github.io/webappsec/specs/subresourceintegrity/)
+Print or check [Subresource Integrity digests](https://w3c.github.io/webappsec/specs/subresourceintegrity/). For all its SRI handling, `srisum` leans on [`ssri`.](https://npm.im/ssri)
 
 `srisum`'s API is based on the `SHA[N]SUM(1)` family of unix utilities.
 
@@ -36,6 +36,10 @@ With no `FILE` or when `FILE` is `-`, read standard input.
 `-w, --warn` - warn about improperly formatted SRI lines
 
 When checking, the input should be a former output of this program. The default mode is to print line with space-separated SRI digests, one more space, and a name for each FILE.
+
+To get a better idea about how tools like `srisum` can be used for various tasks, consider reading [this blog post.](https://shapeshed.com/unix-sha1sum/)
+
+While written for `sha1sum`, the API and usage is identical. You should be able to do everything shown there with `srisum`.
 
 ## AUTHOR
 
