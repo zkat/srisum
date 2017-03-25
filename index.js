@@ -11,7 +11,7 @@ main(parseArgs())
 
 function parseArgs () {
   return yargs
-  .usage('Usage: $0 [OPTION]... [FILE...]')
+  .usage('Usage: $0 [OPTION]... [FILE]...')
   .normalize('_')
   .option('algorithms', {
     alias: 'a',
