@@ -52,8 +52,10 @@ function parseArgs () {
     type: 'boolean',
     describe: 'warn about improperly formatted checksum lines'
   })
-  .help('help')
+  .help('h')
+  .alias('h', 'help')
   .version(() => require('./package.json').version)
+  .alias('version', 'v')
   .argv
 }
 
