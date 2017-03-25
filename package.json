@@ -1,6 +1,6 @@
 {
   "name": "srisum",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CLI tool to compute and check Subresource Integrity digests.",
   "main": "index.js",
   "bin": {
