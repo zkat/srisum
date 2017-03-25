@@ -8,11 +8,11 @@
   },
   "files": [
     "*.js",
-    "srisum.man.1"
+    "srisum.1"
   ],
-  "man": "./srisum.man.1",
+  "man": "./srisum.1",
   "scripts": {
-    "prepare": "marked-man README.md --manual 'User Commands' --version \"srisum@$npm_package_version\" > srisum.man.1",
+    "prepare": "marked-man README.md --manual 'User Commands' --version \"srisum@$npm_package_version\" > srisum.1",
     "prerelease": "npm t",
     "postrelease": "npm publish && git push --follow-tags",
     "pretest": "standard",
