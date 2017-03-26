@@ -10,20 +10,23 @@ const Tacks = require('tacks')
 const tap = require('tap')
 const test = tap.test
 
-const CACHE = require('./util/test-dir')(__dirname)
+const CACHE = require('./util/test-dir')(__filename)
 const Dir = Tacks.Dir
 const File = Tacks.File
 
-const srisum = 'node ' + require.resolve('..')
+const srisumPath = require.resolve('..')
+function srisum () {
+  return execAsync(`node ${srisumPath} ${[].join.call(arguments, ' ')}`, {
+    cwd: CACHE
+  })
+}
 
 test('basic compute', t => {
   const fixture = new Tacks(Dir({
     'foo.txt': File('foo')
   }))
   fixture.create(CACHE)
-  return execAsync(`${srisum} foo.txt`, {
-    cwd: CACHE
-  }).spread((stdout, stderr) => {
+  return srisum('foo.txt').spread((stdout, stderr) => {
     t.equal(stderr, '', 'no output on stderr')
     t.equal(
       stdout,
@@ -34,9 +37,7 @@ test('basic compute', t => {
 })
 
 test('compute errors if file is missing', t => {
-  return execAsync(`${srisum} foo.txt`, {
-    cwd: CACHE
-  }).spread(() => {
+  return srisum('foo.txt').spread(() => {
     throw new Error('this should not have happened')
   }).catch(err => {
     t.equal(err.code, 1, 'non-zero exit code')
@@ -49,9 +50,9 @@ test('compute multiple algorithms', t => {
     'foo.txt': File('foo')
   }))
   fixture.create(CACHE)
-  return execAsync(`${srisum} foo.txt -a sha256 sha384 sha512`, {
-    cwd: CACHE
-  }).spread((stdout, stderr) => {
+  return srisum(
+    'foo.txt -a sha256 sha384 sha512'
+  ).spread((stdout, stderr) => {
     t.equal(stderr, '', 'no output on stderr')
     t.equal(
       stdout,
@@ -70,9 +71,7 @@ test('compute multiple files', t => {
     'baz.css': File('baz')
   }))
   fixture.create(CACHE)
-  return execAsync(`${srisum} foo.txt bar.js baz.css`, {
-    cwd: CACHE
-  }).spread((stdout, stderr) => {
+  return srisum('foo.txt bar.js baz.css').spread((stdout, stderr) => {
     t.equal(stderr, '', 'no output on stderr')
     t.equal(stdout, [
       ssri.fromData('foo') + ' foo.txt',
@@ -89,9 +88,9 @@ test('compute adds options', t => {
     'foo.txt': File('foo')
   }))
   fixture.create(CACHE)
-  return execAsync(`${srisum} foo.txt --options foo bar baz`, {
-    cwd: CACHE
-  }).spread((stdout, stderr) => {
+  return srisum(
+    'foo.txt --options foo bar baz'
+  ).spread((stdout, stderr) => {
     t.equal(stderr, '', 'no output on stderr')
     t.match(stdout, /\?foo\?bar\?baz foo.txt/, 'options are there')
     t.equal(
@@ -106,7 +105,7 @@ test('compute adds options', t => {
 
 test('compute from stdin', t => {
   return BB.fromNode(cb => {
-    const child = require('child_process').exec(`${srisum}`, {
+    const child = require('child_process').exec(`node ${srisumPath}`, {
       cwd: CACHE
     }, cb)
     child.stdin.write('foo', () => child.stdin.end())
@@ -122,7 +121,9 @@ test('compute from stdin', t => {
     }))
     fixture.create(CACHE)
     return BB.fromNode(cb => {
-      const child = require('child_process').exec(`${srisum} - foo.txt`, {
+      const child = require(
+        'child_process'
+      ).exec(`node ${srisumPath} - foo.txt`, {
         cwd: CACHE
       }, cb)
       child.stdin.write('bar', () => child.stdin.end())
@@ -141,9 +142,9 @@ test('compute using strict rules', t => {
     'foo.txt': File('foo')
   }))
   fixture.create(CACHE)
-  return execAsync(`${srisum} foo.txt -a md5 sha1 sha256 sha384 sha512 whirlpool --strict`, {
-    cwd: CACHE
-  }).spread((stdout, stderr) => {
+  return srisum(
+    'foo.txt --strict -a md5 sha1 sha256 sha384 sha512 whirlpool'
+  ).spread((stdout, stderr) => {
     t.equal(stderr, '', 'no output on stderr')
     t.match(stdout, /sha256.*sha384.*sha512/, 'standard hashes present')
     t.equal(
