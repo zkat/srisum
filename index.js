@@ -12,7 +12,6 @@ main(parseArgs())
 function parseArgs () {
   return yargs
   .usage('Usage: $0 [OPTION]... [FILE]...')
-  .normalize('_')
   .option('algorithms', {
     alias: 'a',
     type: 'array',
@@ -68,59 +67,47 @@ function main (argv) {
   }
 }
 
-function check (argv) {
-  const files = argv._.length ? argv._ : [null]
-  let badLines = 0
-  let badChecksums = 0
-  let missingFiles = 0
-  function outputWarnings () {
-    if (argv.status) {
-      // silence
-      return
-    }
-    if (argv.warn && badLines) {
-      console.error(`${argv.$0}: WARNING: ${badLines} line${badLines > 1 ? 's are' : ' is'} improperly formatted or invalid`)
-    }
-    if (!argv.ignoreMissing && missingFiles) {
-      console.error(`${argv.$0}: WARNING: ${missingFiles} listed file${missingFiles > 1 ? 's' : ''} could not be read`)
-    }
-    if (badChecksums) {
-      console.error(`${argv.$0}: WARNING: ${badChecksums} computed checksum${badChecksums > 1 ? 's' : ''} did NOT match`)
-    }
-  }
-  Promise.all(
-    files.map(f => {
-      return new Promise((resolve, reject) => {
-        const stream = f == null ? process.stdin : fs.createReadStream(f)
-        stream.on('error', reject)
-        const promises = []
-        stream.pipe(split(/\r?\n/, null, {trailing: false})).on('error', reject).on('data', line => {
-          const match = line.match(/^(.*)\s+(\S+)$/)
-          const integrity = match && ssri.parse(match[1], {
-            strict: argv.strict
-          })
-          if (f == null && match && match[2] === '-') {
-            promises.push(Promise.resolve(`-: FAILED`))
-          }
-          if (match && integrity.toString().length) {
-            const fileStream = match[2] === '-'
-            ? process.stdin
-            : fs.createReadStream(match[2])
-            promises.push(
-              ssri.checkStream(fileStream, integrity).then(algo => {
-                return {file: match[2], algorithm: algo}
-              }).catch(err => {
-                return {file: match[2], err}
-              })
-            )
-          } else {
-            badLines++
-          }
-        }).on('end', () => resolve(Promise.all(promises)))
-      })
+function compute (argv) {
+  const files = argv._.length ? argv._ : ['-']
+  const results = Promise.all(files.map(f => hashFile(f, argv)))
+  results.then(results => {
+    let exit = 0
+    results.forEach(res => {
+      if (res.integrity) {
+        console.log(`${res.integrity} ${res.file}`)
+      } else {
+        exit = 1
+        res.error && console.error(res.error.message)
+      }
     })
-  ).catch(err => {
-    outputWarnings()
+    process.exit(exit)
+  })
+}
+
+function hashFile (f, argv) {
+  return ssri.fromStream(fileStream(f), {
+    algorithms: argv.algorithms,
+    options: argv.options,
+    strict: argv.strict
+  }).then(
+    integrity => integrity.toString().split(/\s+/).length
+    ? {integrity, file: f}
+    : {error: new Error(`Valid SRI digest could not be generated for ${f}`)}
+  ).catch(error => ({error}))
+}
+
+function check (argv) {
+  const files = argv._.length ? argv._ : ['-']
+  const stats = {
+    badLines: 0,
+    badChecksums: 0,
+    missingFiles: 0
+  }
+  const results = Promise.all(
+    files.map(f => processDigestLines(argv, stats, f))
+  )
+  results.catch(err => {
+    outputWarnings(argv, stats)
     console.error(`${argv.$0}: ERROR: ${err.message}`)
     process.exit(1)
   }).then(results => {
@@ -130,10 +117,10 @@ function check (argv) {
           console.log(`${l.file}: OK (${l.algorithm})`)
         } else if (l.err) {
           if (l.err.code === 'EBADCHECKSUM') {
-            badChecksums++
+            stats.badChecksums++
             console.error(`${l.file}: FAILED`)
           } else if (l.err.code === 'ENOENT' && !argv.ignoreMissing) {
-            missingFiles++
+            stats.missingFiles++
             console.error(`${argv.$0}: ${l.file}: No such file or directory`)
             console.log(`${l.file}: FAILED open or read`)
           } else {
@@ -143,8 +130,11 @@ function check (argv) {
         }
       })
     })
-    outputWarnings()
-    if (badLines || badChecksums) {
+    outputWarnings(argv, stats)
+    if (
+      stats.badLines ||
+      stats.badChecksums ||
+      (!argv.ignoreMissing && stats.missingFiles)) {
       process.exit(1)
     } else {
       process.exit(0)
@@ -152,31 +142,65 @@ function check (argv) {
   })
 }
 
-function compute (argv) {
-  const files = argv._.length ? argv._ : [null]
-  Promise.all(
-    files.map(f => {
-      const stream = f == null ? process.stdin : fs.createReadStream(f)
-      return ssri.fromStream(stream, {
-        algorithms: argv.algorithms,
-        options: argv.options,
+function processDigestLines (argv, stats, digestFile) {
+  return new Promise((resolve, reject) => {
+    const promises = []
+    const stream = fileStream(digestFile).on('error', reject).pipe(
+      split(/\r?\n/, null, {trailing: false}).on('error', reject)
+    )
+    stream.on('data', line => {
+      const match = line.match(/^(.*)\s+(\S+)$/)
+      const integrity = match && ssri.parse(match[1], {
         strict: argv.strict
-      }).then(
-        integrity => integrity.toString().split(/\s+/).length
-        ? `${integrity} ${f || '-'}`
-        : new Error(`Valid SRI digest could not be generated for ${f}`)
-      ).catch(err => err)
-    })
-  ).then(lines => {
-    let exit = 0
-    lines.forEach(l => {
-      if (typeof l === 'string') {
-        console.log(l)
+      })
+      if (digestFile === '-' && match[2] === '-') {
+        return promises.push(
+          Promise.resolve({file: '-', err: {code: 'EBADCHECKSUM'}})
+        )
+      } else if (integrity && integrity.toString().length) {
+        const checkFile = fileStream(match[2])
+        promises.push(
+          ssri.checkStream(checkFile, integrity).then(algo => {
+            return {file: match[2], algorithm: algo}
+          }).catch(err => {
+            return {file: match[2], err}
+          })
+        )
       } else {
-        exit = 1
-        console.error(l.message)
+        stats.badLines++
       }
-    })
-    process.exit(exit)
+    }).on('end', () => resolve(Promise.all(promises)))
   })
+}
+
+function outputWarnings (argv, stats) {
+  if (argv.status) {
+    // silence
+    return
+  }
+  if (argv.warn && stats.badLines) {
+    console.error(`${argv.$0}: WARNING: ${
+      stats.badLines
+    } line${
+      stats.badLines > 1 ? 's are' : ' is'
+    } improperly formatted or invalid`)
+  }
+  if (!argv.ignoreMissing && stats.missingFiles) {
+    console.error(`${argv.$0}: WARNING: ${
+      stats.missingFiles
+    } listed file${
+      stats.missingFiles > 1 ? 's' : ''
+    } could not be read`)
+  }
+  if (stats.badChecksums) {
+    console.error(`${argv.$0}: WARNING: ${
+      stats.badChecksums
+    } computed checksum${
+      stats.badChecksums > 1 ? 's' : ''
+    } did NOT match`)
+  }
+}
+
+function fileStream (f) {
+  return f === '-' ? process.stdin : fs.createReadStream(f)
 }
