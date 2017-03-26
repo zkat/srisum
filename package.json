@@ -12,8 +12,8 @@
   ],
   "man": "./srisum.1",
   "scripts": {
-    "prepare": "tail -n +2 README.md | marked-man --manual 'User Commands' --version \"srisum@$npm_package_version\" > srisum.1",
-    "prerelease": "npm t",
+    "docs": "tail -n +2 README.md | marked-man --manual 'User Commands' --version \"$npm_package_name@$npm_package_version\" > srisum.1",
+    "prerelease": "npm t && npm run docs",
     "postrelease": "npm publish && git push --follow-tags",
     "pretest": "standard",
     "release": "standard-version -s",
