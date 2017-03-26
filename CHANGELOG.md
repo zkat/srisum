@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/zkat/srisum/compare/v1.1.0...v1.1.1) (2017-03-26)
+
+
+### Bug Fixes
+
+* **build:** only build docs before release ([ca16eae](https://github.com/zkat/srisum/commit/ca16eae))
+* **check:** accept non-newline terminated files ([d3669d5](https://github.com/zkat/srisum/commit/d3669d5))
+* **check:** stay appropriately quiet on `--ignore-missing` ([b1e3b64](https://github.com/zkat/srisum/commit/b1e3b64))
+* **files:** treat - as stdin ([6e9677d](https://github.com/zkat/srisum/commit/6e9677d))
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/zkat/srisum/compare/v1.0.1...v1.1.0) (2017-03-25)
 
