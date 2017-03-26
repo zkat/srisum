@@ -1,6 +1,5 @@
 # srisum(1) - compute and check subresource integrity digests
 
-
 ## SYNOPSIS
 
 `srisum [OPTION]... [FILE]...`
@@ -13,7 +12,7 @@
 
 Print or check Subresource Integrity digests.
 
-Spec: [](https://w3c.github.io/webappsec/specs/subresourceintegrity/)
+Spec: https://w3c.github.io/webappsec/specs/subresourceintegrity/
 
 `srisum`'s API is based on the `SHA[N]SUM(1)` family of unix utilities.
 
@@ -98,13 +97,13 @@ index.js: OK (sha512)
 lib/util.js: OK (sha512)
 ```
 
-Checksum file from stdin:
+Checksum file from `stdin`:
 ```
 $ cat styles.css.sri | srisum -c
 styles.css: OK (sha512)
 ```
 
-Checksum stdin itself:
+Checksum `stdin` itself:
 ```
 $ echo "hello" | srisum > stdin.sri
 $ echo "hello" | srisum -c stdin.sri
