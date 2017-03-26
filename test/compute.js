@@ -33,6 +33,17 @@ test('basic compute', t => {
   })
 })
 
+test('compute errors if file is missing', t => {
+  return execAsync(`${srisum} foo.txt`, {
+    cwd: CACHE
+  }).spread(() => {
+    throw new Error('this should not have happened')
+  }).catch(err => {
+    t.equal(err.code, 1, 'non-zero exit code')
+    t.match(err.message, /no such file or directory/, 'error message useful')
+  })
+})
+
 test('compute multiple algorithms', t => {
   const fixture = new Tacks(Dir({
     'foo.txt': File('foo')
