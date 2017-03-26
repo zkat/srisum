@@ -146,9 +146,13 @@ function processDigestLines (argv, stats, digestFile) {
   return new Promise((resolve, reject) => {
     const promises = []
     const stream = fileStream(digestFile).on('error', reject).pipe(
-      split(/\r?\n/, null, {trailing: false}).on('error', reject)
+      split(/\r?\n/, null).on('error', reject)
     )
     stream.on('data', line => {
+      if (!line) {
+        // Ignore empty lines
+        return
+      }
       const match = line.match(/^(.*)\s+(\S+)$/)
       const integrity = match && ssri.parse(match[1], {
         strict: argv.strict
