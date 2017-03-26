@@ -123,7 +123,7 @@ function check (argv) {
             stats.missingFiles++
             console.error(`${argv.$0}: ${l.file}: No such file or directory`)
             console.log(`${l.file}: FAILED open or read`)
-          } else {
+          } else if (l.err.code !== 'ENOENT' && !argv.ignoreMissing) {
             console.error(`${argv.$0}: ${l.file}: ${l.err.message}`)
             console.log(`${l.file}: FAILED ${l.err.code}`)
           }
