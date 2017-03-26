@@ -1,4 +1,6 @@
-# srisum(1) - compute and check subresource integrity digests
+[![npm](https://img.shields.io/npm/v/srisum.svg)](https://npm.im/srisum) [![license](https://img.shields.io/npm/l/srisum.svg)](https://npm.im/srisum) [![Travis](https://img.shields.io/travis/zkat/srisum.svg)](https://travis-ci.org/zkat/srisum) [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/zkat/srisum?svg=true)](https://ci.appveyor.com/project/zkat/srisum) [![Coverage Status](https://coveralls.io/repos/github/zkat/srisum/badge.svg?branch=latest)](https://coveralls.io/github/zkat/srisum?branch=latest)
+
+# srisum(1) -- compute and check subresource integrity digests
 
 ## SYNOPSIS
 
