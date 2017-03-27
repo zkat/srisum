@@ -156,3 +156,22 @@ test('compute using strict rules', t => {
     )
   })
 })
+
+test('--digest-only', t => {
+  const fixture = new Tacks(Dir({
+    'foo.txt': File('foo'),
+    'bar.js': File('bar\n'),
+    'baz.css': File('baz')
+  }))
+  fixture.create(CACHE)
+  return srisum('foo.txt bar.js baz.css -d').spread((stdout, stderr) => {
+    t.equal(stderr, '', 'no output on stderr')
+    t.equal(stdout, [
+      ssri.fromData('foo'),
+      ssri.fromData('bar\n'),
+      ssri.fromData('baz'),
+      ''
+    ].join('\n'),
+    'output one line per digest, with no file information')
+  })
+})

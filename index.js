@@ -18,6 +18,11 @@ function parseArgs () {
     describe: 'hash algorithms to generate for the FILEs',
     default: ['sha512']
   })
+  .option('digest-only', {
+    alias: 'd',
+    type: 'boolean',
+    describe: 'print digests only, without the filename'
+  })
   .option('strict', {
     alias: 's',
     type: 'boolean',
@@ -73,7 +78,9 @@ function compute (argv) {
   results.then(results => {
     let exit = 0
     results.forEach(res => {
-      if (res.integrity) {
+      if (res.integrity && argv.digestOnly) {
+        console.log(res.integrity.toString())
+      } else if (res.integrity) {
         console.log(`${res.integrity} ${res.file}`)
       } else {
         exit = 1
@@ -81,6 +88,9 @@ function compute (argv) {
       }
     })
     process.exit(exit)
+  }).catch(err => {
+    console.error(err.message)
+    process.exit(1)
   })
 }
 

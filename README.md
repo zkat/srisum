@@ -28,6 +28,8 @@ With no `FILE` or when `FILE` is `-`, read standard input.
 
 `-c, --check` - read SRI sums from the `FILE`s and check them
 
+`-d, --digest-only` - only output the digest for each `FILE`, without filenames
+
 `--help` - display help and exit
 
 `--version` - output version information and exit
