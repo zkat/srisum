@@ -30,6 +30,7 @@
     "checksum",
     "hashing",
     "subresource integrity",
+    "sri",
     "html",
     "cli"
   ],
