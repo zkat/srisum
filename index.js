@@ -124,7 +124,7 @@ function check (argv) {
     !argv.status && results.forEach(lines => {
       lines.forEach(l => {
         if (!l.err && !argv.quiet) {
-          console.log(`${l.file}: OK (${l.algorithm})`)
+          console.log(`${l.file}: OK (${l.hash.algorithm})`)
         } else if (l.err) {
           if (l.err.code === 'EBADCHECKSUM') {
             stats.badChecksums++
@@ -174,8 +174,8 @@ function processDigestLines (argv, stats, digestFile) {
       } else if (integrity && integrity.toString().length) {
         const checkFile = fileStream(match[2])
         promises.push(
-          ssri.checkStream(checkFile, integrity).then(algo => {
-            return {file: match[2], algorithm: algo}
+          ssri.checkStream(checkFile, integrity).then(hash => {
+            return {file: match[2], hash}
           }).catch(err => {
             return {file: match[2], err}
           })
