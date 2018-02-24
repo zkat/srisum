@@ -11,6 +11,9 @@
     "srisum.1"
   ],
   "man": "./srisum.1",
+  "engines": {
+    "node": ">=8"
+  },
   "scripts": {
     "docs": "tail -n +2 README.md | marked-man --manual 'User Commands' --version \"$npm_package_name@$npm_package_version\" > srisum.1",
     "prerelease": "npm t && npm run docs",
