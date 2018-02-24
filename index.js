@@ -58,7 +58,6 @@ function parseArgs () {
   })
   .help('h')
   .alias('h', 'help')
-  .version(() => require('./package.json').version)
   .alias('version', 'v')
   .argv
 }
