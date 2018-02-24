@@ -11,55 +11,55 @@ main(parseArgs())
 
 function parseArgs () {
   return yargs
-  .usage('Usage: $0 [OPTION]... [FILE]...')
-  .option('algorithms', {
-    alias: 'a',
-    type: 'array',
-    describe: 'hash algorithms to generate for the FILEs',
-    default: ['sha512']
-  })
-  .option('digest-only', {
-    alias: 'd',
-    type: 'boolean',
-    describe: 'print digests only, without the filename'
-  })
-  .option('strict', {
-    alias: 's',
-    type: 'boolean',
-    describe: 'limit digests to a strict interpretation of the SRI spec'
-  })
-  .option('options', {
-    alias: 'o',
-    type: 'array',
-    describe: 'option strings to include with generated digests',
-    default: []
-  })
-  .option('check', {
-    alias: 'c',
-    type: 'boolean',
-    describe: 'read SRI checksums from the FILEs and check them'
-  })
-  .option('ignore-missing', {
-    type: 'boolean',
-    describe: 'don\'t fail or report status for missing files'
-  })
-  .option('quiet', {
-    type: 'boolean',
-    describe: 'don\'t print OK for each successfully verified file'
-  })
-  .option('status', {
-    type: 'boolean',
-    describe: 'don\'t output anything, status code shows success'
-  })
-  .option('warn', {
-    alias: 'w',
-    type: 'boolean',
-    describe: 'warn about improperly formatted checksum lines'
-  })
-  .help('h')
-  .alias('h', 'help')
-  .alias('version', 'v')
-  .argv
+    .usage('Usage: $0 [OPTION]... [FILE]...')
+    .option('algorithms', {
+      alias: 'a',
+      type: 'array',
+      describe: 'hash algorithms to generate for the FILEs',
+      default: ['sha512']
+    })
+    .option('digest-only', {
+      alias: 'd',
+      type: 'boolean',
+      describe: 'print digests only, without the filename'
+    })
+    .option('strict', {
+      alias: 's',
+      type: 'boolean',
+      describe: 'limit digests to a strict interpretation of the SRI spec'
+    })
+    .option('options', {
+      alias: 'o',
+      type: 'array',
+      describe: 'option strings to include with generated digests',
+      default: []
+    })
+    .option('check', {
+      alias: 'c',
+      type: 'boolean',
+      describe: 'read SRI checksums from the FILEs and check them'
+    })
+    .option('ignore-missing', {
+      type: 'boolean',
+      describe: 'don\'t fail or report status for missing files'
+    })
+    .option('quiet', {
+      type: 'boolean',
+      describe: 'don\'t print OK for each successfully verified file'
+    })
+    .option('status', {
+      type: 'boolean',
+      describe: 'don\'t output anything, status code shows success'
+    })
+    .option('warn', {
+      alias: 'w',
+      type: 'boolean',
+      describe: 'warn about improperly formatted checksum lines'
+    })
+    .help('h')
+    .alias('h', 'help')
+    .alias('version', 'v')
+    .argv
 }
 
 function main (argv) {
@@ -100,8 +100,8 @@ function hashFile (f, argv) {
     strict: argv.strict
   }).then(
     integrity => integrity.toString().split(/\s+/).length
-    ? {integrity, file: f}
-    : {error: new Error(`Valid SRI digest could not be generated for ${f}`)}
+      ? {integrity, file: f}
+      : {error: new Error(`Valid SRI digest could not be generated for ${f}`)}
   ).catch(error => ({error}))
 }
 
