@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/zkat/srisum/compare/v1.3.1...v2.0.0) (2018-02-24)
+
+
+### Features
+
+* **deps:** bundle runtime deps ([88fe1b3](https://github.com/zkat/srisum/commit/88fe1b3))
+* **license:** switch to MIT ([dbc92bc](https://github.com/zkat/srisum/commit/dbc92bc))
+
+
+### misc
+
+* drop support for node@<8 ([8dfe90d](https://github.com/zkat/srisum/commit/8dfe90d))
+
+
+### BREAKING CHANGES
+
+* srisum will no longer be supported on older Node versions
+* **license:** License has been changed from CC0-1.0 to MIT
+
+
+
 <a name="1.3.1"></a>
 ## [1.3.1](https://github.com/zkat/srisum/compare/v1.3.0...v1.3.1) (2018-02-24)
 
