@@ -39,7 +39,7 @@
     "email": "kzm@sykosomatic.org",
     "twitter": "maybekatz"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "dependencies": {
     "split": "^1.0.0",
     "ssri": "^5.2.4",

@@ -124,7 +124,8 @@ Please file any relevant issues [on Github.](https://github.com/zkat/srisum)
 
 ## LICENSE
 
-This work is released by its authors into the public domain under CC0-1.0. See `LICENSE.md` for details.
+This work is released under the terms of the MIT license. For more details, see
+the LICENSE file included with this distribution.
 
 ## SEE ALSO
 
