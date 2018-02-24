@@ -1,4 +1,4 @@
-pre_install:
+before_install:
   - npm i -g npm@next
 install:
   - npm ci
