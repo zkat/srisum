@@ -42,7 +42,7 @@
   "license": "CC0-1.0",
   "dependencies": {
     "split": "^1.0.0",
-    "ssri": "^3.0.0",
+    "ssri": "^5.2.4",
     "yargs": "^7.0.2"
   },
   "devDependencies": {

@@ -126,7 +126,7 @@ function check (argv) {
         if (!l.err && !argv.quiet) {
           console.log(`${l.file}: OK (${l.hash.algorithm})`)
         } else if (l.err) {
-          if (l.err.code === 'EBADCHECKSUM') {
+          if (l.err.code === 'EINTEGRITY') {
             stats.badChecksums++
             console.error(`${l.file}: FAILED`)
           } else if (l.err.code === 'ENOENT' && !argv.ignoreMissing) {
@@ -169,7 +169,7 @@ function processDigestLines (argv, stats, digestFile) {
       })
       if (digestFile === '-' && match[2] === '-') {
         return promises.push(
-          Promise.resolve({file: '-', err: {code: 'EBADCHECKSUM'}})
+          Promise.resolve({file: '-', err: {code: 'EINTEGRITY'}})
         )
       } else if (integrity && integrity.toString().length) {
         const checkFile = fileStream(match[2])
