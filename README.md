@@ -4,11 +4,67 @@
 
 ## SYNOPSIS
 
-`srisum [OPTION]... [FILE]...`
+`$ npx srisum [OPTION]... [FILE]...`
 
-## INSTALL
+## EXAMPLES
 
-`npm install --save [-g] srisum`
+### Computing SRI Digests
+
+For a single file:
+```
+$ npx srisum styles.css > styles.css.sri
+```
+
+For multiple different files:
+```
+$ npx srisum styles.css index.js package.json bundle.js > app.sri
+```
+
+From `stdin`:
+```
+$ cat styles.css | npx srisum -a sha1
+sha1-hmkHOZdrfLUVOqpAgryfC8XNGtE -
+```
+
+Specify algorithms to generate:
+```
+$ npx srisum styles.css index.js --algorithms sha512 sha256 sha1 > styles.css.sri
+```
+
+Add options:
+```
+$ npx srisum styles.css -a sha1 --options releaser=Kat date=2017-01-01
+sha1-hmkHOZdrfLUVOqpAgryfC8XNGtE=?releaser=kat?date=2017-01-01 styles.css
+```
+
+### Checking Integrity
+
+Passing checksum file as an argument:
+```
+$ npx srisum -c styles.css.sri
+styles.css: OK (sha512)
+```
+
+Passing multiple checksum files:
+```
+$ npx srisum -c styles.css.sri js-files.sri
+styles.css: OK (sha512)
+index.js: OK (sha512)
+lib/util.js: OK (sha512)
+```
+
+Checksum file from `stdin`:
+```
+$ cat styles.css.sri | npx srisum -c
+styles.css: OK (sha512)
+```
+
+Checksum `stdin` itself:
+```
+$ echo "hello" | npx srisum > stdin.sri
+$ echo "hello" | npx srisum -c stdin.sri
+-: OK (sha512)
+```
 
 ## DESCRIPTION
 
@@ -53,66 +109,6 @@ Strict mode, enabled with `--strict`, will entirely ignore digests (in input and
 * `algorithms` must be one or more of: `sha256`, `sha384`, `sha512`
 * `options` must be visual characters except for `?`.
 * digest strings must be valid `RFC4648` `Base64` strings.
-
-## EXAMPLES
-
-### Computing SRI Digests
-
-For a single file:
-```
-$ srisum styles.css > styles.css.sri
-```
-
-For multiple different files:
-```
-$ srisum styles.css index.js package.json bundle.js > app.sri
-```
-
-From `stdin`:
-```
-$ cat styles.css | srisum -a sha1
-sha1-hmkHOZdrfLUVOqpAgryfC8XNGtE -
-```
-
-Specify algorithms to generate:
-```
-$ srisum styles.css index.js --algorithms sha512 sha256 sha1 > styles.css.sri
-```
-
-Add options:
-```
-$ srisum styles.css -a sha1 --options releaser=Kat date=2017-01-01
-sha1-hmkHOZdrfLUVOqpAgryfC8XNGtE=?releaser=kat?date=2017-01-01 styles.css
-```
-
-### Checking Integrity
-
-Passing checksum file as an argument:
-```
-$ srisum -c styles.css.sri
-styles.css: OK (sha512)
-```
-
-Passing multiple checksum files:
-```
-$ srisum -c styles.css.sri js-files.sri
-styles.css: OK (sha512)
-index.js: OK (sha512)
-lib/util.js: OK (sha512)
-```
-
-Checksum file from `stdin`:
-```
-$ cat styles.css.sri | srisum -c
-styles.css: OK (sha512)
-```
-
-Checksum `stdin` itself:
-```
-$ echo "hello" | srisum > stdin.sri
-$ echo "hello" | srisum -c stdin.sri
--: OK (sha512)
-```
 
 ## AUTHOR
 
