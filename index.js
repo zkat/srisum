@@ -71,84 +71,89 @@ function main (argv) {
   }
 }
 
-function compute (argv) {
-  const files = argv._.length ? argv._ : ['-']
-  const results = Promise.all(files.map(f => hashFile(f, argv)))
-  results.then(results => {
+async function compute (argv) {
+  try {
+    const files = argv._.length ? argv._ : ['-']
     let exit = 0
-    results.forEach(res => {
-      if (res.integrity && argv.digestOnly) {
-        console.log(res.integrity.toString())
-      } else if (res.integrity) {
-        console.log(`${res.integrity} ${res.file}`)
+    const results = await Promise.all(files.map(f => hashFile(f, argv)))
+    results.forEach(({integrity, error, file}) => {
+      if (integrity && argv.digestOnly) {
+        console.log(integrity.toString())
+      } else if (integrity) {
+        console.log(`${integrity} ${file}`)
       } else {
         exit = 1
-        res.error && console.error(res.error.message)
+        error && console.error(error.message)
       }
     })
     process.exit(exit)
-  }).catch(err => {
+  } catch (err) {
     console.error(err.message)
     process.exit(1)
-  })
+  }
 }
 
-function hashFile (f, argv) {
-  return ssri.fromStream(fileStream(f), {
-    algorithms: argv.algorithms,
-    options: argv.options,
-    strict: argv.strict
-  }).then(
-    integrity => integrity.toString().split(/\s+/).length
+async function hashFile (f, {algorithms, options, strict}) {
+  try {
+    const integrity = await ssri.fromStream(fileStream(f), {
+      algorithms,
+      options,
+      strict
+    })
+    return integrity.toString().split(/\s+/).length
       ? {integrity, file: f}
       : {error: new Error(`Valid SRI digest could not be generated for ${f}`)}
-  ).catch(error => ({error}))
+  } catch (error) {
+    return {error}
+  }
 }
 
-function check (argv) {
+async function check (argv) {
   const files = argv._.length ? argv._ : ['-']
   const stats = {
     badLines: 0,
     badChecksums: 0,
     missingFiles: 0
   }
-  const results = Promise.all(
-    files.map(f => processDigestLines(argv, stats, f))
-  )
-  results.catch(err => {
+  let results
+  try {
+    results = await Promise.all(
+      files.map(f => processDigestLines(argv, stats, f))
+    )
+  } catch (err) {
     outputWarnings(argv, stats)
     console.error(`${argv.$0}: ERROR: ${err.message}`)
     process.exit(1)
-  }).then(results => {
-    !argv.status && results.forEach(lines => {
-      lines.forEach(l => {
-        if (!l.err && !argv.quiet) {
-          console.log(`${l.file}: OK (${l.hash.algorithm})`)
-        } else if (l.err) {
-          if (l.err.code === 'EINTEGRITY') {
-            stats.badChecksums++
-            console.error(`${l.file}: FAILED`)
-          } else if (l.err.code === 'ENOENT' && !argv.ignoreMissing) {
-            stats.missingFiles++
-            console.error(`${argv.$0}: ${l.file}: No such file or directory`)
-            console.log(`${l.file}: FAILED open or read`)
-          } else if (l.err.code !== 'ENOENT' && !argv.ignoreMissing) {
-            console.error(`${argv.$0}: ${l.file}: ${l.err.message}`)
-            console.log(`${l.file}: FAILED ${l.err.code}`)
-          }
+  }
+  !argv.status && results.forEach(lines => {
+    lines.forEach(l => {
+      if (!l.err && !argv.quiet) {
+        console.log(`${l.file}: OK (${l.hash.algorithm})`)
+      } else if (l.err) {
+        if (l.err.code === 'EINTEGRITY') {
+          stats.badChecksums++
+          console.error(`${l.file}: FAILED`)
+        } else if (l.err.code === 'ENOENT' && !argv.ignoreMissing) {
+          stats.missingFiles++
+          console.error(`${argv.$0}: ${l.file}: No such file or directory`)
+          console.log(`${l.file}: FAILED open or read`)
+        } else if (l.err.code !== 'ENOENT' && !argv.ignoreMissing) {
+          console.error(`${argv.$0}: ${l.file}: ${l.err.message}`)
+          console.log(`${l.file}: FAILED ${l.err.code}`)
         }
-      })
+      }
     })
-    outputWarnings(argv, stats)
-    if (
-      stats.badLines ||
-      stats.badChecksums ||
-      (!argv.ignoreMissing && stats.missingFiles)) {
-      process.exit(1)
-    } else {
-      process.exit(0)
-    }
   })
+  outputWarnings(argv, stats)
+  if (
+    stats.badLines ||
+    stats.badChecksums ||
+    (!argv.ignoreMissing && stats.missingFiles)
+  ) {
+    process.exit(1)
+  } else {
+    process.exit(0)
+  }
 }
 
 function processDigestLines (argv, stats, digestFile) {
